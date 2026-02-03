@@ -1,5 +1,7 @@
 FROM php:8.3-apache
 
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+
 # Instalador de extensiones
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 
