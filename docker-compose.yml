@@ -1,0 +1,31 @@
+services:
+  web:
+    build: .
+    image: localhost/whatever_web_image:latest
+    container_name: whatever_web
+    ports:
+      - "8080:80"   # HTTP
+      - "8443:443"  # HTTPS
+    volumes:
+      - ./:/var/www/html
+      - ./certs:/etc/apache2/certs
+    environment:
+      - APACHE_DOCUMENT_ROOT=/var/www/html
+    depends_on:
+      - db
+
+  db:
+    image: docker.io/library/mariadb:10.11
+    container_name: whatever_db
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: whatever_db
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
