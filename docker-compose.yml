@@ -1,8 +1,9 @@
 services:
   web:
     build: .
-    image: localhost/whatever_web_image:latest
-    container_name: whatever_web
+    image: localhost/${PROJECT_NAME}_web_image:latest
+    container_name: ${PROJECT_NAME}_web
+    restart: unless-stopped
     ports:
       - "8080:80"   # HTTP
       - "8443:443"  # HTTPS
@@ -12,20 +13,32 @@ services:
     environment:
       - APACHE_DOCUMENT_ROOT=/var/www/html
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   db:
     image: docker.io/library/mariadb:10.11
-    container_name: whatever_db
+    container_name: ${PROJECT_NAME}_db
+    restart: unless-stopped
     ports:
       - "3306:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: whatever_db
-      MYSQL_USER: test
-      MYSQL_PASSWORD: test
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
     volumes:
       - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
 
 volumes:
   db_data:
+
+networks:
+  default:
+    name: ${PROJECT_NAME}_network
