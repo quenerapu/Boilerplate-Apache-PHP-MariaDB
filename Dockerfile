@@ -36,9 +36,12 @@ RUN chmod +x /usr/local/bin/install-php-extensions && \
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Ajuste de usuario
-RUN usermod -u 1000 www-data
+# RUN usermod -u 1000 www-data
 
 # OJO, que exista .podman/vhost.conf
 COPY .podman/vhost.conf /etc/apache2/sites-available/000-default.conf
 
 WORKDIR /var/www/html
+
+RUN sed -i 's/Listen 80/Listen 8080/' /etc/apache2/ports.conf
+RUN sed -i 's/Listen 443/Listen 8443/' /etc/apache2/ports.conf
